@@ -2,14 +2,8 @@
 blockhash=$(bitcoin-cli getblockhash 123321)
 transactionids=$(bitcoin-cli getblock $blockhash | jq -r .tx.[])
 
-gettransaction() {
-  rawtx=$(bitcoin-cli getrawtransaction $txid)
-
-  bitcoin-cli decoderawtransaction $rawtx | jq .
-}
-
 for txid in ${transactionids[@]}; do
-  vouts=$(gettransaction $txid | jq ".vout.[].n")
+  vouts=$(bitcoin-cli getrawtransaction $txid 1 | jq ".vout.[].n")
 
   for n in ${vouts[@]}; do
     txout=$(bitcoin-cli gettxout $txid $n)
