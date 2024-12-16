@@ -9,20 +9,17 @@ gettransaction() {
 blockhash=$(bitcoin-cli getblockhash 256128)
 coinbasetxid=$(
   bitcoin-cli getblock $blockhash |
-    jq ".tx.[0]" | # First transaction in a block is the coinbase tx
-    awk '{gsub(/^\"/, ""); gsub(/\"$/, ""); print}'
+    jq -r ".tx.[0]" # First transaction in a block is the coinbase tx
 )
 
 blockhash=$(bitcoin-cli getblockhash 257343)
-txids=$(bitcoin-cli getblock $blockhash | jq ".tx.[]")
+txids=$(bitcoin-cli getblock $blockhash | jq -r ".tx.[]")
 
 for txid in ${txids[@]}; do
-  tx=$(gettransaction $(echo $txid | awk '{gsub(/"/, ""); print}'))
-  txvin=$(echo $tx | jq '.vin.[] | .txid')
+  tx=$(gettransaction $txid)
+  txvin=$(echo $tx | jq -r '.vin.[] | .txid')
 
   for txvinid in ${txvin[@]}; do
-    txvinid=$(echo $txvinid | awk '{gsub(/"/, ""); print}')
-
     if [[ $txvinid = $coinbasetxid ]]; then
       break 2
     fi
