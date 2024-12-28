@@ -20,4 +20,4 @@ for txid in ${txids[@]}; do
   done
 done
 
-echo $txvinid
+echo $tx | jq -r '.txid'
